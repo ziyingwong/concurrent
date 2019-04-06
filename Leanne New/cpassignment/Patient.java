@@ -1,5 +1,8 @@
 package cpassignment;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class Patient implements Runnable {
 
     private final HospitalManagement hospital;
@@ -29,14 +32,17 @@ public class Patient implements Runnable {
     public long getConsultationTime() {
         return time.getConsultationTime();
     }
+    
+    public long getWaitingTime() {
+        return time.getWaitingTime();
+    }
 
 //    public PatientStatus getPatientStatus(){
 //        return this.patientStatus;
 //    }
     
-    
     // Setter
-    public void setendOfWaitingTime(long endOfWaitingTime) {
+    public void setEndOfWaitingTime(long endOfWaitingTime) {
         this.time.setEndOfWaitingTime(endOfWaitingTime);
     }
 
@@ -44,13 +50,17 @@ public class Patient implements Runnable {
 //        this.patientStatus = patientStatus;
 //    }
     
-    
+    @Override
     public void run() {
-//        while (getPatientStatus()!= PatientStatus.EXIT) {
-//            hospital.assignPatient(this); // AssignPatient de ending is wait()[commonlist / waiting list] if wait 
-//            
+        try {
+            //        while (getPatientStatus()!= PatientStatus.EXIT) {
+//            hospital.assignPatient(this); // AssignPatient de ending is wait()[commonlist / waiting list] if wait
+//
 //        }
-
+            this.hospital.assignPatient(this);
+        } catch (Exception ex) {
+            Logger.getLogger(Patient.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }

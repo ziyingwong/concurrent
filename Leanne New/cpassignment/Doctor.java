@@ -2,8 +2,8 @@ package cpassignment;
 
 import java.util.ArrayList;
 
-public class Doctor implements Runnable{
-    
+public class Doctor implements Runnable {
+
     HospitalManagement hospital;
     private final String doctorID;
     private boolean isAvailable;
@@ -70,34 +70,38 @@ public class Doctor implements Runnable{
     public void setWaitingList(ArrayList<Patient> waitingList) {
         this.waitingList = waitingList;
     }
-    
+
+    // For Report Used
+    public long getMyPatientWaitingTime(){
+        long totalWaitingTime = 0;
+        for (Patient p : this.patientList) {
+            totalWaitingTime += p.getWaitingTime();
+        }
+        return totalWaitingTime;
+    }
+
     @Override
-    public void run() {
+    public void run() { // 
         long currentTime = System.currentTimeMillis();
         long timeDiff = currentTime - 0; // I dunno how to loop time
         while (System.currentTimeMillis() - timeDiff != 240) {
-            if (getTotalNumberOfPatient() % 8 == 0 && getWaitingList().isEmpty() ) {
-//                this.restingTime ++; // No need rest Time
+            if (getTotalNumberOfPatient() % 8 == 0 && getWaitingList().isEmpty()) {
                 setIsAvailable(false);
-                try{
-                Thread.sleep(15);
-                        }catch(Exception e){}
-            }else if(getTotalNumberOfPatient() % 8 == 0 ){
-                 setIsAvailable(true);
-                 continue;
-            }
-//                this.restingTime = 0; // No need RestTime
+                try {
+                    Thread.sleep(15);
+                } catch (Exception e) {
+                }
+            } else if (getTotalNumberOfPatient() % 8 == 0) {
                 setIsAvailable(true);
+                continue;
+            }
+            setIsAvailable(true);
         }
     }
-    
-    
+
     //got one method
-    public void DoctorOperation(Patient p){
-        hospital
-            
-            
-            
+    public void doctorOperation(Patient p) throws Exception { // Dunno where to put this doctor Operation 
+        this.hospital.doctorOperation(this, p);
     }
-    
+
 }

@@ -5,10 +5,11 @@ import java.util.ArrayList;
 public class Day1 {
 
     public static void main(String[] args) {
-        HospitalManagemnet PPUM = new HospitalManagemnet(9);
+        HospitalManagement PPUM = new HospitalManagement(9);
         ArrayList<Doctor> workingDoctorList = new ArrayList<Doctor>();
+        // Create doctor List [Should be at Reader class]
         for (int i = 0; i < PPUM.getNumberOfDoctorWorking(); i++) {
-            Doctor doctor = new Doctor("d" + i);
+            Doctor doctor = new Doctor("d" + i, PPUM);
             workingDoctorList.add(doctor);
         }
         PPUM.setWorkingDoctorList(workingDoctorList);
