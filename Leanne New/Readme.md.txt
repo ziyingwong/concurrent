@@ -1,4 +1,4 @@
-<h1> note </h1>
+Note
 
 1. Doctor Class
 - dunno when to put doc operation (That one keep looking until waiting list 0 eh)
@@ -9,7 +9,7 @@
 
 4. The input format maybe can be:
 [The number of doctor working today]
-[TimeArrival, patientId, consultationTime]
+[TimeArrival, patientId, consultationTime,...]
 
 5.The HospitalManagement Class
 - I m not sure which one need to lock which one no need la. I have comment there please help me take a look.
