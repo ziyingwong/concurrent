@@ -5,7 +5,6 @@ public class Time {
     private long arrivalTime;
     private long waitingTime;
     private long consultationTime;
-//        private long starOfWaiting;
     private long endOfWaitingTime;
 
     public Time() {
@@ -25,7 +24,7 @@ public class Time {
     public long getArrivalTime() {
         return arrivalTime;
     }
-    
+
     // Setter
     public void setArrivalTime(long arrivalTime) {
         this.arrivalTime = arrivalTime;
@@ -38,7 +37,7 @@ public class Time {
     public void setEndOfWaitingTime(long endOfWaitingTime) {
         this.endOfWaitingTime = endOfWaitingTime;
     }
-    
+
     // Calculation
     private long calcuatedWaitingTime() {
         this.waitingTime = endOfWaitingTime - arrivalTime;

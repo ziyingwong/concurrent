@@ -1,5 +1,15 @@
 <h1> note </h1>
 
+--- 7/5 ----
+1. The report .java , the ArrayList seems like is empty
+
+2. The Doctor seems like didnt rest after 8 patient. You may try to Comment the //ori , and uncommented //I added to run and see, just have the index out of bound error havent solved
+[Should be just involved Doctor.java and HospitalManagement.java]
+
+3. The consult boolean at the purpose for doctorOperation is? 
+
+------------------------------------------
+
 1. Doctor Class
 - dunno when to put doc operation (That one keep looking until waiting list 0 eh)
 

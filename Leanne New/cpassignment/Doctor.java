@@ -6,12 +6,12 @@ public class Doctor implements Runnable {
 
     HospitalManagement hospital;
     private final String doctorID;
-    private boolean isAvailable;
-    private ArrayList<Patient> patientList;
-    private ArrayList<Patient> waitingList;
+    private boolean isAvailable = true;
+    private ArrayList<Patient> patientList = new ArrayList<>();
+    private ArrayList<Patient> waitingList = new ArrayList<>();
     private int totalNumberOfPatient;
     private long totalConsultationTime;
-//    private long restingTime;
+    private boolean consultingStatus;
 
     public Doctor(String doctorID, HospitalManagement hospital) {
         this.doctorID = doctorID;
@@ -19,60 +19,69 @@ public class Doctor implements Runnable {
         this.isAvailable = true;
         this.totalNumberOfPatient = 0;
         this.totalConsultationTime = 0;
+        this.consultingStatus = false;
     }
 
-    public void addPatient(Patient patient) {
+    // I changed something here
+    public int addPatient(Patient patient) {
         this.patientList.add(patient);
         this.totalNumberOfPatient++;
         this.waitingList.add(patient);
-    }
-
-    public boolean getIsAvailable() {
-        return isAvailable;
-    }
-
-    public void setIsAvailable(boolean isAvailable) {
-        this.isAvailable = isAvailable;
-    }
-
-    public ArrayList<Patient> getPatientList() {
-        return this.patientList;
-    }
-
-    public void setPatientList(ArrayList<Patient> patientList) {
-        this.patientList = patientList;
-    }
-
-    public int getTotalNumberOfPatient() {
         return this.totalNumberOfPatient;
-    }
-
-    public void setTotalNumberOfPatient(int totalNumberOfPatient) {
-        this.totalNumberOfPatient = totalNumberOfPatient;
-    }
-
-    public String getDoctorID() {
-        return this.doctorID;
-    }
-
-    public long getTotalConsultationTime() {
-        return this.totalConsultationTime;
     }
 
     public void incrementTotalConsultationTime(long totalConsultationTime) {
         this.totalConsultationTime += totalConsultationTime;
     }
 
+    //getter
+    public String getDoctorID() {
+        return this.doctorID;
+    }
+
+    public boolean getIsAvailable() {
+        return isAvailable;
+    }
+
+    public ArrayList<Patient> getPatientList() {
+        return this.patientList;
+    }
+
     public ArrayList<Patient> getWaitingList() {
         return this.waitingList;
+    }
+
+    public int getTotalNumberOfPatient() {
+        return this.totalNumberOfPatient;
+    }
+
+    public long getTotalConsultationTime() {
+        return this.totalConsultationTime;
+    }
+
+    public boolean isConsultingStatus() {
+        return consultingStatus;
+    }
+
+    // setter
+    public void setIsAvailable(boolean isAvailable) {
+        this.isAvailable = isAvailable;
+    }
+
+    public void setPatientList(ArrayList<Patient> patientList) {
+        this.patientList = patientList;
     }
 
     public void setWaitingList(ArrayList<Patient> waitingList) {
         this.waitingList = waitingList;
     }
 
+    public void setConsultingStatus(boolean consultingStatus) {
+        this.consultingStatus = consultingStatus;
+    }
+
     // For Report Used
-    public long getMyPatientWaitingTime(){
+    public long getMyPatientWaitingTime() {
         long totalWaitingTime = 0;
         for (Patient p : this.patientList) {
             totalWaitingTime += p.getWaitingTime();
@@ -81,27 +90,43 @@ public class Doctor implements Runnable {
     }
 
     @Override
-    public void run() { // 
-        long currentTime = System.currentTimeMillis();
-        long timeDiff = currentTime - 0; // I dunno how to loop time
-        while (System.currentTimeMillis() - timeDiff != 240) {
-            if (getTotalNumberOfPatient() % 8 == 0 && getWaitingList().isEmpty()) {
+    public void run() {
+        long timeDiff = System.currentTimeMillis() - hospital.getStartTime();
+        while (System.currentTimeMillis() - timeDiff != 240 || !this.hospital.getCommonWaitingList().isEmpty()) {
+            try {
+                this.hospital.doctorOperation(this);
+            } catch (Exception e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            //ori
+            if (getTotalNumberOfPatient() % 8 == 0 && getTotalNumberOfPatient() != 0) {
+                // I added
+
+//            int doctorTotalNumberOfPatient = getTotalNumberOfPatient();
+//            if ( doctorTotalNumberOfPatient >= 8&& doctorTotalNumberOfPatient % 8 == 0) {
+//                System.out.println("[Patient Count == " + getTotalNumberOfPatient() + "] Stop Assigning patient to " + this.doctorID +"[Is not available]");
+
+                // This need to be commented because I will set the available status at assign patient when the patient is ady can be divided by 8
+                // ori (but I wish to commented it)
                 setIsAvailable(false);
+
+                while (!getWaitingList().isEmpty()) {
+                    System.out.println("[ " + this.doctorID + " currently waiting to finished own waiting list and going to Rest]");
+                }
                 try {
+                    System.out.println(" " + this.doctorID + " Start Rest]: Doctor: " + this.doctorID);
                     Thread.sleep(15);
+                    System.out.println("[ " + this.doctorID + " End Rest]: Doctor: " + this.doctorID + " is available");
+                    //I added
+//                    setIsAvailable(true);
                 } catch (Exception e) {
                 }
-            } else if (getTotalNumberOfPatient() % 8 == 0) {
-                setIsAvailable(true);
-                continue;
             }
+// This need to be commented because I will set the available status at assign patient when the patient is ady can be divided by 8
+// ori
             setIsAvailable(true);
         }
-    }
-
-    //got one method
-    public void doctorOperation(Patient p) throws Exception { // Dunno where to put this doctor Operation 
-        this.hospital.doctorOperation(this, p);
     }
 
 }

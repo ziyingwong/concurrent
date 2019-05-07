@@ -5,67 +5,55 @@ import java.util.ArrayList;
 public class Day1 {
 
     public static void main(String[] args) {
-        HospitalManagement PPUM = new HospitalManagement(9);
-        ArrayList<Doctor> workingDoctorList = new ArrayList<Doctor>();
-        // Create doctor List [Should be at Reader class]
-        for (int i = 0; i < PPUM.getNumberOfDoctorWorking(); i++) {
-            Doctor doctor = new Doctor("d" + i, PPUM);
-            workingDoctorList.add(doctor);
+        //create reader thread
+        Reader read = new Reader();
+        Thread t = new Thread(read);
+        t.start();
+        try {
+            t.join();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
-        PPUM.setWorkingDoctorList(workingDoctorList);
-        
-        
 
-        Thread patient = new Thread() {
-            public void run() {
-//                Patient patient1 = new Patient("p1");
+        // create hospital,doctor,patient
+        int numOfDoc = read.getNumOfDoc();
+        ArrayList<String[]> readList = read.getPatientList();
+        HospitalManagement hospital = new HospitalManagement(numOfDoc);
+        ArrayList<Patient> patientList = new ArrayList<>();
+        for (int i = 0; i < readList.size(); i++) {
+            String arrival_time = readList.get(i)[0];
+            String patient_ID = readList.get(i)[1];
+            String duration = readList.get(i)[2];
+            Patient p = new Patient(arrival_time, patient_ID, duration, hospital);
+            patientList.add(p);
+        }
 
-//                ArrayList<Doctor> availableDoctor = new ArrayList<Doctor>(); // create a list of available doctor
-//                for (int i = 0; i < PPUM.clinicList.size() - 1; i++) {
-//                    if (PPUM.clinicList.get(i).doctor.isAvailable == true) {
-//                        availableDoctor.add(PPUM.clinicList.get(i).doctor);
-//                    }
-//                }
-//                boolean isFull = true; // check if all doctor waiting list is full
-//                for (int i = 0; i < availableDoctor.size(); i++) {
-//                    if (availableDoctor.get(i).waitingList.size() < 3) {
-//                        isFull = false;
-//                        break;
-//                    }
-//                }
+        hospital.setNumberOfPatientVisit(patientList.size());
 
-//                if (isFull == true) {
-//                    PPUM.commonWaitingList.add(patient1); // all doctor waiting list is full, patient added to common
-//                    // waiting list
-//                } else {
-//                    ArrayList<Integer> min = new ArrayList<Integer>(); // find doctor with least total patient
-//                    min.add(0);
-//                    for (int i = 1; i < availableDoctor.size(); i++) {
-//                        if (availableDoctor.get(i).totalNumberOfPatient < availableDoctor
-//                                .get(min.get(0)).totalNumberOfPatient) {
-//                            min.clear();
-//                            min.add(i);
-//                        } else if (availableDoctor.get(i).totalNumberOfPatient == availableDoctor
-//                                .get(min.get(0)).totalNumberOfPatient) {
-//                            min.add(i);
-//                        }
-//                    }
-//
-//                    if (min.size() == 1) {
-//                        if (availableDoctor.get(min.get(0)).waitingList.size() < 3) {
-//                            for (int i = 0; i < PPUM.clinicList.size(); i++) {
-//                                if (PPUM.clinicList.get(i).doctor.doctorID.equals(availableDoctor.get(min.get(0)).doctorID)) {
-//                                    Doctor inchargeDoctor = availableDoctor.get(min.get(0));
-//                                    inchargeDoctor.addPatient(patient1);
-//                                    PPUM.clinicList.set(i, new Clinic(inchargeDoctor));
-//                                }
-//                            }
-//                        }
-//                    }
-//
-//                }
+        // Hospital Open
+        long startTime = System.currentTimeMillis();
+        hospital.setStartTime(startTime);
+        // create doctor thread
+        for (int i = 0; i < numOfDoc; i++) {
+            Doctor doctor = new Doctor("Doctor " + (i + 1), hospital);
+            hospital.updateWorkingDoctorList(doctor);
+            Thread tdoctor = new Thread(doctor);
+            tdoctor.start();
+        }
+        //create patient thread
+        for (int i = 0; i < patientList.size(); i++) {
+            long arrivalTime = patientList.get(i).getArrivalTime();
+            while (System.currentTimeMillis() - startTime < arrivalTime * 1000) {
+                // do nothing
             }
-        };
-    }
+            System.out.println("Arrival TIME : " + (System.currentTimeMillis() - startTime) / 1000);
+            Runnable patient = patientList.get(i);
+            Thread walkIn = new Thread(patient);
+            walkIn.start();
+            System.out.println(patientList.get(i).getPatientID() + " walk in");
+        }
 
+        // Need to find way to join tdoctor and also walkIn thread, then only create report
+    }
 }
