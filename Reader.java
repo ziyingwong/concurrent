@@ -1,4 +1,4 @@
-package groupProject2;
+package groupProject;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

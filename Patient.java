@@ -1,4 +1,4 @@
-package groupProject2;
+package groupProject;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -8,6 +8,7 @@ public class Patient implements Runnable {
 	private final HospitalManagement hospital;
 	private final String patientID;
 	private Time time;
+	private int index=0;
 
 	public Patient(String arrivalTime, String patientID, String consultationTime, HospitalManagement hospital) {
 		this.patientID = patientID;
@@ -20,6 +21,10 @@ public class Patient implements Runnable {
 	// Getter
 	public String getPatientID() {
 		return patientID;
+	}
+	
+	public int getIndex() {
+		return this.index;
 	}
 
 	public long getArrivalTime() {
@@ -37,6 +42,10 @@ public class Patient implements Runnable {
 	// Setter
 	public void setEndOfWaitingTime(long endOfWaitingTime) {
 		this.time.setEndOfWaitingTime(endOfWaitingTime);
+	}
+	
+	public void incrementIndex() {
+		this.index++;
 	}
 
 	@Override

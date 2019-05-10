@@ -1,4 +1,4 @@
-package groupProject2;
+package groupProject;
 
 public class Time {
 

@@ -1,4 +1,4 @@
-package groupProject2;
+package groupProject;
 
 import java.util.ArrayList;
 
@@ -8,7 +8,8 @@ public class Doctor implements Runnable {
 	HospitalManagement hospital;
 	private final String doctorID;
 	private boolean isAvailable = true;
-	private ArrayList<Patient> patientList = new ArrayList<Patient>();
+	private boolean isConsulting = false;
+	private volatile ArrayList<Patient> patientList = new ArrayList<Patient>();
 	private ArrayList<Patient> waitingList = new ArrayList<Patient>();
 	private int totalNumberOfPatient;
 	private long totalConsultationTime;
@@ -27,6 +28,13 @@ public class Doctor implements Runnable {
 		this.patientList.add(patient);
 		this.totalNumberOfPatient++;
 		this.waitingList.add(patient);
+	}
+	public boolean isConsultingStatus() {
+		return this.isConsulting;
+	}
+
+	public void setConsultingStatus(boolean isConsulting) {
+		this.isConsulting = isConsulting;
 	}
 
 	public boolean getIsAvailable() {
@@ -87,25 +95,16 @@ public class Doctor implements Runnable {
 	@Override
 	public void run() {
 		long timeDiff = System.currentTimeMillis() - hospital.getStartTime();
-		while (System.currentTimeMillis() - timeDiff != 240 || this.hospital.getCommonWaitingList().size() != 0) {
+		while (System.currentTimeMillis() - timeDiff != 240 || this.hospital.getCommonWaitingList().size() != 0||this.waitingList.size()!=0) {
 			try {
 				this.hospital.doctorOperation(this);
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			if (getTotalNumberOfPatient() % 8 == 0 && getTotalNumberOfPatient() != 0) {
-				System.out.println("Doctor is not available");
-				setIsAvailable(false);
-				while (!getWaitingList().isEmpty()) {
-				}
-				try {
-					Thread.sleep(15);
-				} catch (Exception e) {
-				}
-			}
-			setIsAvailable(true);
+			
 		}
+		System.out.println(this.doctorID +" bang ganggggggggggggggg");
 	}
 
 }
