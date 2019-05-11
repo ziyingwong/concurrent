@@ -8,6 +8,8 @@ public class Patient implements Runnable {
     private final HospitalManagement hospital;
     private final String patientID;
     private Time time;
+//    private int index = 0;
+    private boolean isFirstTime = true;
 
     public Patient(String arrivalTime, String patientID, String consultationTime, HospitalManagement hospital) {
         this.patientID = patientID;
@@ -34,9 +36,24 @@ public class Patient implements Runnable {
         return time.getWaitingTime();
     }
 
+    public boolean isIsFirstTime() {
+        return isFirstTime;
+    }
+
+//    public int getIndex() {
+//        return this.index;
+//    }
     // Setter
     public void setEndOfWaitingTime(long endOfWaitingTime) {
         this.time.setEndOfWaitingTime(endOfWaitingTime);
+    }
+
+//    public void incrementIndex() {
+//        this.index++;
+//    }
+    
+    public void setIsFirstTime(boolean isFirstTime) {
+        this.isFirstTime = isFirstTime;
     }
 
     @Override
