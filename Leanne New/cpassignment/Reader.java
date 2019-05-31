@@ -12,10 +12,15 @@ public class Reader implements Runnable {
 
     private ArrayList<String[]> readList;
     private int numOfDoc;
-
+    private String filename;
+    
+    public Reader(String filename){
+        this.filename = filename;
+    }
+    
     public void readFile() throws FileNotFoundException, IOException {
         String thisLine = null;
-        BufferedReader br = new BufferedReader(new FileReader("testdata.txt"));
+        BufferedReader br = new BufferedReader(new FileReader(this.filename));
         this.numOfDoc = Integer.parseInt(br.readLine().trim());
         this.readList = new ArrayList<>();
 
@@ -33,16 +38,10 @@ public class Reader implements Runnable {
         return this.numOfDoc;
     }
 
-//	public ArrayList<Doctor> getDoctorList(){
-//		return this.doctorList;
-//	}
     public ArrayList<String[]> getPatientList() {
         return this.readList;
     }
 
-//	public HospitalManagement getHospital() {
-//		return this.hospital;
-//	}
     @Override
     public void run() {
         try {

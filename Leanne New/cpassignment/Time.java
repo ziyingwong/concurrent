@@ -2,9 +2,9 @@ package cpassignment;
 
 public class Time {
 
-    private long arrivalTime;
+    private final long arrivalTime;
     private long waitingTime;
-    private long consultationTime;
+    private final long consultationTime;
     private long endOfWaitingTime;
 
     public Time(long arrivalTime,long consultationTime) {
@@ -42,7 +42,7 @@ public class Time {
 
     // Calculation
     private long calculatedWaitingTime() {
-        this.waitingTime = endOfWaitingTime - arrivalTime;
+        this.waitingTime = endOfWaitingTime - arrivalTime * 1000;
         return waitingTime;
     }
 
