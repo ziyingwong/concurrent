@@ -7,16 +7,12 @@ public class Patient implements Runnable {
 
     private final HospitalManagement hospital;
     private final String patientID;
-    private Time time;
-//    private PatientStatus patientStatus = PatientStatus.QUEUE;
-//
-//    public enum PatientStatus {
-//        QUEUE,WAITING_AT_COMMONLIST, WAITING_AT_WAITINGLIST, CONSULTATION, EXIT;
-//    }
+    private final Time time;
+    private boolean isFirstTime = true;
 
-    public Patient(String patientID, HospitalManagement hospital) {
+    public Patient(String arrivalTime, String patientID, String consultationTime, HospitalManagement hospital) {
         this.patientID = patientID;
-        time = new Time();
+        time = new Time(Long.parseLong(arrivalTime),Long.parseLong(consultationTime));
         this.hospital = hospital;
     }
 
@@ -32,31 +28,27 @@ public class Patient implements Runnable {
     public long getConsultationTime() {
         return time.getConsultationTime();
     }
-    
+
     public long getWaitingTime() {
         return time.getWaitingTime();
     }
 
-//    public PatientStatus getPatientStatus(){
-//        return this.patientStatus;
-//    }
-    
+    public boolean isIsFirstTime() {
+        return isFirstTime;
+    }
+
     // Setter
     public void setEndOfWaitingTime(long endOfWaitingTime) {
         this.time.setEndOfWaitingTime(endOfWaitingTime);
     }
-
-//    public void setPatientStatus(PatientStatus patientStatus){
-//        this.patientStatus = patientStatus;
-//    }
     
+    public void setIsFirstTime(boolean isFirstTime) {
+        this.isFirstTime = isFirstTime;
+    }
+
     @Override
     public void run() {
         try {
-            //        while (getPatientStatus()!= PatientStatus.EXIT) {
-//            hospital.assignPatient(this); // AssignPatient de ending is wait()[commonlist / waiting list] if wait
-//
-//        }
             this.hospital.assignPatient(this);
         } catch (Exception ex) {
             Logger.getLogger(Patient.class.getName()).log(Level.SEVERE, null, ex);

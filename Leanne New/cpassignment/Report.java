@@ -9,39 +9,62 @@ package cpassignment;
  *
  * @author Leanne
  */
+
+
+import java.util.ArrayList;
+
 public class Report {
 
-    private HospitalManagement hospital;
-
+    private final HospitalManagement hospital;
     public Report(HospitalManagement hospital) {
         this.hospital = hospital;
     }
 
     public void generateReport() {
-        //Add header
+        System.out.println("-----------------Report-----------------");
         printNumberOfPatientVisitHospital();
-        printDoctorSummaryReport();
         printOverallAverageConsultationTime();
         printOverallAverageWaitingTimeOfPatient();
-        //Add footer
+        printDoctorSummaryReport();
+        System.out.println("---------------End Report------------");
     }
 
     public void printNumberOfPatientVisitHospital() {
-        // sum of total patient number for all doctor
+        System.out.println("Number of patients visit: " + hospital.getNumberOfPatientVisit());
     }
-
+    
     public void printDoctorSummaryReport() {
-        //Number of patient seen by each doctor
-        //Average consultationTime by each doctor = totalConsultationTime of the doctor / totalPatientOf the doctor
-        //Average waitingTime of patient by each doctor = totalPatientWaitingTime of the doctor / / totalPatientOf the doctor
+        ArrayList<Doctor> doctorList = hospital.getWorkingDoctorList();
+        for (int i = 0; i < doctorList.size(); i++) {
+            System.out.println("Doctor " + doctorList.get(i).getDoctorID());
+            int totalNumberOfPatientForTheDoctor = doctorList.get(i).getTotalNumberOfPatient();
+            long consultation = doctorList.get(i).getTotalConsultationTime();
+            long wait = doctorList.get(i).getMyPatientWaitingTime();
+            System.out.println("Number of Patients: " + totalNumberOfPatientForTheDoctor);
+            System.out.printf("Average Consultation Time: %.2f minutes\n" ,(float)(consultation / totalNumberOfPatientForTheDoctor));
+            System.out.printf("Average Waiting Time: %.2f minutes\n",(float)((wait/1000) / totalNumberOfPatientForTheDoctor) );
+            System.out.println("");
+        }
     }
-
+    
     public void printOverallAverageConsultationTime() {
-//        sum of all patient Consultation Time/sum of total patient number for all doctor
+        ArrayList<Doctor> doctorList = hospital.getWorkingDoctorList();
+        long totalConsultationTimeForAllPatient = 0;
+        for (int i = 0; i < doctorList.size(); i++) {
+            totalConsultationTimeForAllPatient += doctorList.get(i).getTotalConsultationTime();
+        }
+        float overallAverageConsultationTime = totalConsultationTimeForAllPatient / hospital.getNumberOfPatientVisit();
+        System.out.printf("Overall Average Consultation Time of Patient Visited: %.2f minutes\n" ,overallAverageConsultationTime);
     }
 
     public void printOverallAverageWaitingTimeOfPatient() {
-//        sum of all patient Waiting Time /sum of total patient number for all doctor
+        ArrayList<Doctor> doctorList = hospital.getWorkingDoctorList();
+        long totalWaitingTimeForAllPatient = 0;
+        for (int i = 0; i < doctorList.size(); i++) {
+            totalWaitingTimeForAllPatient += doctorList.get(i).getMyPatientWaitingTime();
+        }
+        float overallAverageWaitingTime = totalWaitingTimeForAllPatient / hospital.getNumberOfPatientVisit();
+        System.out.printf("Overall Average Waiting Time of Patient Visited: %.2f minutes\n", overallAverageWaitingTime/1000);
     }
-
 }
+

@@ -6,73 +6,79 @@ public class Doctor implements Runnable {
 
     HospitalManagement hospital;
     private final String doctorID;
-    private boolean isAvailable;
-    private ArrayList<Patient> patientList;
-    private ArrayList<Patient> waitingList;
+    private boolean isAvailable = true;
+    private boolean isConsulting;
+    private volatile ArrayList<Patient> patientList = new ArrayList<>();
+    private ArrayList<Patient> waitingList = new ArrayList<>();
     private int totalNumberOfPatient;
     private long totalConsultationTime;
-//    private long restingTime;
 
     public Doctor(String doctorID, HospitalManagement hospital) {
         this.doctorID = doctorID;
         this.hospital = hospital;
         this.isAvailable = true;
-        this.totalNumberOfPatient = 0;
         this.totalConsultationTime = 0;
+        this.isConsulting = false;
     }
 
     public void addPatient(Patient patient) {
-        this.patientList.add(patient);
         this.totalNumberOfPatient++;
+        this.patientList.add(patient);
         this.waitingList.add(patient);
-    }
-
-    public boolean getIsAvailable() {
-        return isAvailable;
-    }
-
-    public void setIsAvailable(boolean isAvailable) {
-        this.isAvailable = isAvailable;
-    }
-
-    public ArrayList<Patient> getPatientList() {
-        return this.patientList;
-    }
-
-    public void setPatientList(ArrayList<Patient> patientList) {
-        this.patientList = patientList;
-    }
-
-    public int getTotalNumberOfPatient() {
-        return this.totalNumberOfPatient;
-    }
-
-    public void setTotalNumberOfPatient(int totalNumberOfPatient) {
-        this.totalNumberOfPatient = totalNumberOfPatient;
-    }
-
-    public String getDoctorID() {
-        return this.doctorID;
-    }
-
-    public long getTotalConsultationTime() {
-        return this.totalConsultationTime;
     }
 
     public void incrementTotalConsultationTime(long totalConsultationTime) {
         this.totalConsultationTime += totalConsultationTime;
     }
 
+    //getter
+    public String getDoctorID() {
+        return this.doctorID;
+    }
+
+    public boolean getIsAvailable() {
+        return isAvailable;
+    }
+
+    public ArrayList<Patient> getPatientList() {
+        return this.patientList;
+    }
+
     public ArrayList<Patient> getWaitingList() {
         return this.waitingList;
+    }
+
+    public int getTotalNumberOfPatient() {
+        return this.totalNumberOfPatient;
+    }
+
+    public long getTotalConsultationTime() {
+        return this.totalConsultationTime;
+    }
+
+    public boolean isConsulting() {
+        return this.isConsulting;
+    }
+
+    // setter
+    public void setIsAvailable(boolean isAvailable) {
+        this.isAvailable = isAvailable;
+    }
+
+    public void setPatientList(ArrayList<Patient> patientList) {
+        this.patientList = patientList;
     }
 
     public void setWaitingList(ArrayList<Patient> waitingList) {
         this.waitingList = waitingList;
     }
 
+    public void setIsConsulting(boolean isConsulting) {
+        this.isConsulting = isConsulting;
+    }
+
     // For Report Used
-    public long getMyPatientWaitingTime(){
+    public long getMyPatientWaitingTime() {
         long totalWaitingTime = 0;
         for (Patient p : this.patientList) {
             totalWaitingTime += p.getWaitingTime();
@@ -81,27 +87,15 @@ public class Doctor implements Runnable {
     }
 
     @Override
-    public void run() { // 
-        long currentTime = System.currentTimeMillis();
-        long timeDiff = currentTime - 0; // I dunno how to loop time
-        while (System.currentTimeMillis() - timeDiff != 240) {
-            if (getTotalNumberOfPatient() % 8 == 0 && getWaitingList().isEmpty()) {
-                setIsAvailable(false);
-                try {
-                    Thread.sleep(15);
-                } catch (Exception e) {
-                }
-            } else if (getTotalNumberOfPatient() % 8 == 0) {
-                setIsAvailable(true);
-                continue;
+    public void run() {
+        while (System.currentTimeMillis() - hospital.getStartTime() < 240*1000 || !waitingList.isEmpty() || !this.hospital.getCommonWaitingList().isEmpty()) {
+            try {
+                this.hospital.doctorOperation(this);
+            } catch (Exception e1) {
+                System.out.println("Exception : " + e1);
             }
-            setIsAvailable(true);
         }
-    }
-
-    //got one method
-    public void doctorOperation(Patient p) throws Exception { // Dunno where to put this doctor Operation 
-        this.hospital.doctorOperation(this, p);
+        System.out.println(this.doctorID + " Balik Kampung.");
     }
 
 }
