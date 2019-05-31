@@ -13,9 +13,9 @@ public class Patient implements Runnable {
 
     public Patient(String arrivalTime, String patientID, String consultationTime, HospitalManagement hospital) {
         this.patientID = patientID;
-        time = new Time();
-        time.setArrivalTime(Long.parseLong(arrivalTime));
-        time.setConsultationTime(Long.parseLong(consultationTime));
+        time = new Time(Long.parseLong(arrivalTime),Long.parseLong(consultationTime));
+//        time.setArrivalTime(Long.parseLong(arrivalTime));
+//        time.setConsultationTime(Long.parseLong(consultationTime));
         this.hospital = hospital;
     }
 
