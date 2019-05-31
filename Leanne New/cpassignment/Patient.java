@@ -7,15 +7,18 @@ public class Patient implements Runnable {
 
     private final HospitalManagement hospital;
     private final String patientID;
-    private Time time;
+    private final Time time;
 //    private int index = 0;
     private boolean isFirstTime = true;
 
     public Patient(String arrivalTime, String patientID, String consultationTime, HospitalManagement hospital) {
         this.patientID = patientID;
         time = new Time(Long.parseLong(arrivalTime),Long.parseLong(consultationTime));
+<<<<<<< HEAD
+=======
 //        time.setArrivalTime(Long.parseLong(arrivalTime));
 //        time.setConsultationTime(Long.parseLong(consultationTime));
+>>>>>>> ffab293a43001b7ca8aa96cb75abe802727f5e81
         this.hospital = hospital;
     }
 

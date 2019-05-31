@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Day1 {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         //create reader thread
         Reader read = new Reader();
         Thread t = new Thread(read);
@@ -35,16 +35,19 @@ public class Day1 {
         long startTime = System.currentTimeMillis();
         hospital.setStartTime(startTime);
         // create doctor thread
+        ArrayList<Thread> doctorThreadList = new ArrayList<>();
+        Thread tdoctor = new Thread();
         for (int i = 0; i < numOfDoc; i++) {
             Doctor doctor = new Doctor("Doctor " + (i + 1), hospital);
             hospital.updateWorkingDoctorList(doctor);
-            Thread tdoctor = new Thread(doctor);
+            tdoctor = new Thread(doctor);
+            doctorThreadList.add(tdoctor);
             tdoctor.start();
         }
         //create patient thread
         for (int i = 0; i < patientList.size(); i++) {
             long arrivalTime = patientList.get(i).getArrivalTime();
-            while (System.currentTimeMillis() - startTime < arrivalTime * 1000) {
+            while ((System.currentTimeMillis() - startTime) < arrivalTime *1000) {
                 // do nothing
             }
             System.out.println("Arrival TIME : " + (System.currentTimeMillis() - startTime) / 1000);
@@ -53,7 +56,17 @@ public class Day1 {
             walkIn.start();
             System.out.println(patientList.get(i).getPatientID() + " walk in");
         }
-
+        
+        
+        // Wait for all the doctor done their jobs
+        for (int i = 0; i < numOfDoc; i++) {
+            doctorThreadList.get(i).join();
+        }
+        
+        System.out.println("=========REPORT======");
+        Report report = new Report(hospital);
+        report.generateReport();
+        
         // Need to find way to join tdoctor and also walkIn thread, then only create report
     }
 }

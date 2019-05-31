@@ -103,8 +103,9 @@ public class Doctor implements Runnable {
 
     @Override
     public void run() {
-        long timeDiff = System.currentTimeMillis() - hospital.getStartTime();
-        while (System.currentTimeMillis() - timeDiff != 240 || !waitingList.isEmpty() || !this.hospital.getCommonWaitingList().isEmpty()) {
+//        long timeDiff = System.currentTimeMillis() - hospital.getStartTime();
+        
+        while (System.currentTimeMillis() - hospital.getStartTime() < 240*1000 || !waitingList.isEmpty() || !this.hospital.getCommonWaitingList().isEmpty()) {
             try {
                 this.hospital.doctorOperation(this);
             } catch (Exception e1) {

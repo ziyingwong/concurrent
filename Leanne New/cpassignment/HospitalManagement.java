@@ -150,33 +150,18 @@ public class HospitalManagement {
     }
 
     // Operation
-    public void doctorOperation(Doctor doc) throws Exception { // Should doctor lock ?
-        //ori
-//        lock.lock();
-//        try {
-//            while (!doc.getWaitingList().isEmpty()) {
-//                doctorWaitingListPatient.signal();
+    public void doctorOperation(Doctor doc) throws Exception {
+        lock.lock();
+        try {
+            while (!doc.getWaitingList().isEmpty()) {
+                doctorWaitingListPatient.signalAll();
 //                ArrayList<Patient> list = doc.getWaitingList();
 //                Patient p = list.get(0);
 //                list.remove(0);
 //                doc.setWaitingList(list);
-//                patientLeaveCondition.await();
+//                doctorOperationCondition.await();
+                doctorOperationCondition.awaitUninterruptibly();
 //                doc.incrementTotalConsultationTime(p.getConsultationTime() * 1000);
-//            }
-//        } finally {
-//            lock.unlock();
-//        }
-
-        lock.lock();
-        try {
-            while (!doc.getWaitingList().isEmpty()) {
-                doctorWaitingListPatient.signal();
-                ArrayList<Patient> list = doc.getWaitingList();
-                Patient p = list.get(0);
-                list.remove(0);
-                doc.setWaitingList(list);
-                doctorOperationCondition.await();
-                doc.incrementTotalConsultationTime(p.getConsultationTime() * 1000);
                 System.out.println("\n" + doc.getDoctorID() + " waiting list : ");
 
                 // Print WAITING LIST THAT HAVE MIN PATIENT
@@ -193,7 +178,7 @@ public class HospitalManagement {
                 System.out.println("[ " + doc.getDoctorID() + " START Resting  !!!!!!!!!!!!!!!!!!!!!]");
 //                try {
                 lock.unlock();
-                Thread.sleep(15000);
+                Thread.sleep(15 * 1000);
                 lock.lock();
 //                } catch (Exception e) {
 //                }
@@ -202,11 +187,6 @@ public class HospitalManagement {
                 doc.setIsAvailable(true);
                 patientLeaveCondition.signalAll();
                 System.out.println("[ " + doc.getDoctorID() + " END Rest !!!!!!!!!!!!!!!!!!!!!");
-//				System.out.println("signal 111111111111");
-//				patientLeaveCondition.signal();
-//				System.out.println("signal 222222222222");
-//				patientLeaveCondition.signal();
-//				System.out.println("signal 33333333333");
             }
         } finally {
             lock.unlock();
@@ -217,16 +197,24 @@ public class HospitalManagement {
         lock.lock();
         try {
             while (doc.isConsulting()) {
-                doctorWaitingListPatient.await();
+//                doctorWaitingListPatient.await();
+                doctorWaitingListPatient.awaitUninterruptibly();
             }
+            //!ADDED
+            doc.getWaitingList().remove(p);
+            
             doc.setIsConsulting(true);
             System.out.println("[ " + doc.getDoctorID() + " start consult] ; " + p.getPatientID() + " start consultation by " + doc.getDoctorID());
             p.setEndOfWaitingTime(System.currentTimeMillis() - startTime);
+            //Seems like need to remove doc patient according to thread at here        
+
             lock.unlock();
             Thread.sleep(p.getConsultationTime() * 1000);
             lock.lock();
             System.out.println("[ " + doc.getDoctorID() + " finished giving consultation ] ; " + p.getPatientID() + " finish consulting by " + doc.getDoctorID());
             doc.setIsConsulting(false);
+            //!ADDED
+            doc.incrementTotalConsultationTime(p.getConsultationTime() * 1000);
             doctorOperationCondition.signal();
             // TODO: WHICH ONE BETTER ? SignalAll or Signal?
             patientLeaveCondition.signalAll();
@@ -239,7 +227,8 @@ public class HospitalManagement {
     public void commonListPatientOperation(Patient p) throws Exception {
         lock.lock();
         try {
-            patientLeaveCondition.await();
+//            patientLeaveCondition.await();
+            patientLeaveCondition.awaitUninterruptibly();
             System.out.println("You been called : " + p.getPatientID());
             lock.unlock();
             assignPatient(p);
@@ -249,26 +238,44 @@ public class HospitalManagement {
         }
     }
 
+<<<<<<< HEAD
+    public void assignPatient(Patient p) throws Exception {
+=======
        public void assignPatient(Patient p) throws Exception {
+>>>>>>> ffab293a43001b7ca8aa96cb75abe802727f5e81
         lock.lock();
         try {
             System.out.println("========= LOCK ASSIGN PATIENT =========");
             boolean consulted = false;
             getNewAvailableDoctorListOfTheDay(); // this.currentAvailableDoctorList ady sorted
+<<<<<<< HEAD
+            // ALL CLINIC LIST FULL || COMMON LIST NOT EMPTY & PATIENT NOT FIRST TIME -> COMMON LIST OPERATION
+            if (isAllClinicWaitingListFull() == true || (!this.commonWaitingList.isEmpty() && p.isIsFirstTime() == true)) {
+                if (p.isIsFirstTime() == true) { // first arrived patient
+=======
             if (isAllClinicWaitingListFull() == true || (!this.commonWaitingList.isEmpty() && p.isIsFirstTime() == true)) {
                 if (p.isIsFirstTime() == true) { /// first arrived patient
+>>>>>>> ffab293a43001b7ca8aa96cb75abe802727f5e81
                     this.commonWaitingList.add(p); // all doctor waiting list is full, patient added to common waiting list
                     System.out.println(p.getPatientID() + "enter common waiting list");
                     p.setIsFirstTime(false);
                 }
+                
+                // PRINT COMMON WAITING LIST
                 System.out.println("\n The common waiting list : ");
                 this.commonWaitingList.stream().forEach((patient) -> {
                     System.out.println(patient.getPatientID() + " , ");
                 });
+                
                 lock.unlock();
                 commonListPatientOperation(p);
                 lock.lock();
+<<<<<<< HEAD
+                
+=======
+>>>>>>> ffab293a43001b7ca8aa96cb75abe802727f5e81
             } else {
+                // COMMON LIST NO PPL && STILL HAVE PLACE IN WAITING LIST
                 int searchIndex = 0;
                 while (true) {
                     ArrayList<Doctor> doctorListHavingMinTotalNumberPatient = findMinTotalPatientNumberDoctorList(
@@ -280,8 +287,13 @@ public class HospitalManagement {
                         System.out.println(doctor.getDoctorID() + " , ");
                     });
                     System.out.println("");
-
+                    
+                    //HAVE MIN TOTAL # PATIENT DR LIST == 1
+                    
                     if (doctorListHavingMinTotalNumberPatient.size() == 1) {
+                        
+                        // IF DR WAITING LIST < 3 & 
+                        
                         if (doctorListHavingMinTotalNumberPatient.get(0).getWaitingList().size() < 3
                                 && isRangeDifferenceInThree(doctorListHavingMinTotalNumberPatient.get(0).getTotalNumberOfPatient())) {
                             Doctor inchargeDoctor = doctorListHavingMinTotalNumberPatient.get(0);
@@ -307,9 +319,15 @@ public class HospitalManagement {
                             consulted = true;
                             break;
                         } else if (!isRangeDifferenceInThree(doctorListHavingMinTotalNumberPatient.get(0).getTotalNumberOfPatient())) {
+                            // TODO: SOLVE THE LOCK PROBLEM
+//                        searchIndex++;// Search for next one that have min num [Seems like have the release a unlock problem]
                             System.out.println("Opps Doctor reach the max quota! Wait for other available doctor");
 //                            Added
+<<<<<<< HEAD
+                            if (p.isIsFirstTime()) {
+=======
                               if (p.isIsFirstTime()) {
+>>>>>>> ffab293a43001b7ca8aa96cb75abe802727f5e81
                                 this.commonWaitingList.add(p);
                                 System.out.println(p.getPatientID() + "enter common waiting list");
                                 p.setIsFirstTime(false);
@@ -318,10 +336,28 @@ public class HospitalManagement {
                             commonListPatientOperation(p);
                             lock.lock();
                             break;//(If the range exit thn can break ady)
+                        } else {
+                            System.out.println("Opps waiting list is full but Range in 3. Go find next doctor!!!!!!!");
+                            if (searchIndex + 1 < this.currentAvailableDoctorList.size() && consulted == false) {
+                                searchIndex += 1;
+                            } else {
+                                // THIS IS THE LAST AVAILABLE DOCTOR
+                                if (consulted == false) {
+                                    if (p.isIsFirstTime() == true) {
+                                        this.commonWaitingList.add(p);
+                                        System.out.println(p.getPatientID() + "enter common waiting list");
+                                        p.setIsFirstTime(false);
+                                    }
+                                    lock.unlock();
+                                    commonListPatientOperation(p);
+                                    lock.lock();
+                                }
+                                break;
+                            }
                         }
-                        // TODO: SOLVE THE LOCK PROBLEM
-//                        searchIndex++;// Search for next one that have min num [Seems like have the release a unlock problem]
                     } else {
+                        //HAVE MIN TOTAL # PATIENT DR LIST > 1
+                        
                         doctorListHavingMinTotalNumberPatient = sortMinPatientDoctorListByWaitingListNumber(
                                 doctorListHavingMinTotalNumberPatient);
                         // Sort the doctor list that hv min patient by waiting list num
@@ -357,6 +393,20 @@ public class HospitalManagement {
                                     .size()
                                     && consulted == false) {
                                 searchIndex += doctorListHavingMinTotalNumberPatient.size();
+<<<<<<< HEAD
+                            } else { // TODO: WHAT IS THE ACTION FOR THE PATIENT (ELSE THE THREAD MISSING) ?? CORRECT?
+                                //ADDED that cause the fail
+                                if (consulted == false) {
+                                    if (p.isIsFirstTime() == true) {
+                                        this.commonWaitingList.add(p);
+                                        System.out.println(p.getPatientID() + "enter common waiting list");
+                                        p.setIsFirstTime(false);
+                                    }
+                                    lock.unlock();
+                                    commonListPatientOperation(p);
+                                    lock.lock();
+                                }
+=======
                             } else{ // TODO: WHAT IS THE ACTION FOR THE PATIENT (ELSE THE THREAD MISSING) ?? CORRECT?
                                //ADDED that cause the fail
 //                            if (consulted == false) {
@@ -368,6 +418,7 @@ public class HospitalManagement {
 //                                lock.unlock();
 //                                commonListPatientOperation(p);
 //                                lock.lock();
+>>>>>>> ffab293a43001b7ca8aa96cb75abe802727f5e81
                                 break;
                             }
                         } else {
